@@ -1,17 +1,17 @@
 # Museu Aberto
 
 Galeria digital de arte com frontend Angular e backend Spring Boot.
-O backend integra dados do Art Institute of Chicago e da Wikipedia, aplica cache e expõe uma API para busca, detalhes e coleções por sessão.
+O backend usa a Met Museum public collection API e consulta a Wikipedia para complementar detalhes, aplica cache e expõe uma API para busca, detalhes e coleções por sessão.
 
 ## Screenshots
 
 ### Pagina principal
 
-![Pagina principal da aplicacao](image.png)
+![Pagina principal da aplicacao](images/image.png)
 
 ### Detalhe de obra
 
-![Tela de detalhe de obra](image2.png)
+![Tela de detalhe de obra](images/image2.png)
 
 ## Visao Geral
 
@@ -24,6 +24,10 @@ O projeto suporta dois modos de uso:
 
 - Modo portatil: roda somente o backend (com frontend ja empacotado em static)
 - Modo desenvolvimento: frontend Angular separado na porta 4200 com proxy para o backend
+
+## Como usar este repositório
+
+Para instruções de execução, build e desenvolvimento, veja [STARTERS.md](STARTERS.md).
 
 ## Estrutura do Repositorio
 
@@ -65,106 +69,11 @@ museu-aberto/
 - Node.js 18+ (recomendado 20+)
 - npm 9+
 
-## Execucao Rapida (Modo Portatil)
+## Como usar este repositório
 
-Use este modo quando o arquivo JAR ja estiver disponivel em backend/target.
+Para instruções de execução, build e desenvolvimento, veja [STARTERS.md](STARTERS.md).
 
-### Linux/macOS
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-### Windows
-
-```bat
-start.bat
-```
-
-Ao iniciar:
-
-- App: http://localhost:8091
-- API: http://localhost:8091/api
-- Health check: http://localhost:8091/api/health
-- H2 console: http://localhost:8091/h2-console
-
-Observacao importante:
-
-- Os scripts start.sh e start.bat esperam exatamente o arquivo backend/target/museu-aberto-backend-1.0.0.jar.
-- Se esse JAR nao existir, execute o build (secoes abaixo).
-
-## Rebuild Completo do Zero (Linux/macOS)
-
-O script run-from-zero.sh faz:
-
-1. Encerra processos antigos do backend
-2. Limpa o banco H2 local em backend/data
-3. Instala dependencias do frontend
-4. Gera build Angular
-5. Copia dist/frontend/browser para backend/src/main/resources/static
-6. Executa mvn clean package no backend
-7. Sobe o backend com java -jar
-
-Uso:
-
-```bash
-chmod +x run-from-zero.sh
-./run-from-zero.sh
-```
-
-## Desenvolvimento (Frontend + Backend Separados)
-
-### 1) Subir backend
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-Backend em http://localhost:8091
-
-### 2) Subir frontend
-
-Em outro terminal:
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-Frontend em http://localhost:4200
-
-O arquivo frontend/proxy.conf.json redireciona requisicoes /api para http://localhost:8091.
-
-## Build Manual de Producao
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run build
-```
-
-Saida esperada: frontend/dist/frontend/browser
-
-### Copiar frontend para o backend
-
-```bash
-mkdir -p backend/src/main/resources/static
-rm -rf backend/src/main/resources/static/*
-cp -R frontend/dist/frontend/browser/. backend/src/main/resources/static/
-```
-
-### Backend
-
-```bash
-cd backend
-mvn -DskipTests clean package
-java -jar target/museu-aberto-backend-1.0.0.jar
-```
+## Configuracoes Relevantes
 
 ## Configuracoes Relevantes
 

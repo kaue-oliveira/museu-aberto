@@ -7,11 +7,7 @@ Thumbs.db
 *.swo
 
 .idea/
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/tasks.json
-!.vscode/launch.json
+.vscode/
 
 # ------------------------------
 # Logs / Temp
