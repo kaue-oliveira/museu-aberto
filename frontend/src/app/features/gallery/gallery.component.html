@@ -1,0 +1,123 @@
+<div class="gallery-page">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-label">Art Institute of Chicago</p>
+      <h1 class="hero-title">Uma Janela para<br><em>a Grande Arte</em></h1>
+      <p class="hero-subtitle">
+        Explore mais de 100 mil obras de arte de uma das maiores coleções do mundo.
+        Da Antiguidade ao contemporâneo, cada obra conta uma história.
+      </p>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <div class="controls-bar">
+    <div class="controls-inner">
+      <!-- Search -->
+      <div class="search-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por título, artista, estilo..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange($event)"
+        />
+        @if (searchQuery) {
+          <button class="clear-btn" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <!-- Color Filter -->
+      <app-color-filter
+        [selectedHue]="selectedColorHue"
+        (colorSelected)="onColorFilter($event)"
+      ></app-color-filter>
+
+      <!-- Shuffle Button -->
+      <button mat-raised-button color="primary" class="shuffle-btn" (click)="shuffleArtworks()">
+        <mat-icon>refresh</mat-icon>
+        Carregar novas obras
+      </button>
+    </div>
+  </div>
+
+  <!-- Gallery Grid -->
+  <div class="gallery-container page-container">
+    @if (loading()) {
+      <!-- Skeleton Loading -->
+      <div class="masonry-grid">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-img"></div>
+            <div class="skeleton-info">
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-artist"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (hasError) {
+      <div class="empty-state">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Não foi possível carregar as obras</h3>
+        <p>Verifique se o backend está rodando e tente novamente.</p>
+        <button class="btn-primary" (click)="loadArtworks()">
+          <mat-icon>refresh</mat-icon>
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (filteredArtworks.length === 0) {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>Nenhuma obra encontrada</h3>
+        <p>Tente outros termos de busca ou remova os filtros de cor.</p>
+        <button class="btn-ghost" (click)="clearSearch()">
+          Limpar filtros
+        </button>
+      </div>
+    } @else {
+      <!-- Results info -->
+      @if (searchQuery || selectedColorHue !== null) {
+        <div class="results-info">
+          <span>{{ filteredArtworks.length }} obras encontradas</span>
+          @if (selectedColorHue !== null) {
+            <button class="chip-remove" (click)="onColorFilter(null)">
+              <mat-icon>palette</mat-icon>
+              Filtro de cor ativo
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Masonry Grid -->
+      <div class="masonry-grid">
+        @for (artwork of filteredArtworks; track trackByArtwork($index, artwork)) {
+          <app-artwork-card
+            [artwork]="artwork"
+            class="fade-in"
+          ></app-artwork-card>
+        }
+      </div>
+
+      <!-- Load More Indicator -->
+      @if (loadingMore()) {
+        <div class="load-more-indicator">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Carregando mais obras...</span>
+        </div>
+      }
+
+      @if (currentPage >= totalPages && filteredArtworks.length > 0) {
+        <div class="end-indicator">
+          <span>◈</span>
+          <p>Você chegou ao fim desta coleção</p>
+        </div>
+      }
+    }
+  </div>
+</div>

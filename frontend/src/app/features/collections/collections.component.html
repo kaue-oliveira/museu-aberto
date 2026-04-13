@@ -1,0 +1,68 @@
+<div class="collections-page page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <h1 class="page-title">Minhas Coleções</h1>
+      <p class="page-subtitle">Organize e salve suas obras favoritas em coleções personalizadas.</p>
+    </div>
+    <button class="btn-create" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Nova Coleção
+    </button>
+  </div>
+
+  <!-- Collections Grid -->
+  @if ((collections$ | async)?.length === 0) {
+    <div class="empty-state">
+      <mat-icon>collections_bookmark</mat-icon>
+      <h3>Nenhuma coleção ainda</h3>
+      <p>Crie sua primeira coleção para começar a organizar as obras que você ama.</p>
+      <button class="btn-create" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Criar primeira coleção
+      </button>
+    </div>
+  } @else {
+    <div class="collections-grid">
+      @for (collection of (collections$ | async); track collection.id) {
+        <a [routerLink]="['/collections', collection.id]" class="collection-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <mat-icon>collections_bookmark</mat-icon>
+            </div>
+            <button
+              class="delete-btn"
+              (click)="deleteCollection(collection, $event)"
+              matTooltip="Excluir coleção"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+          <div class="card-body">
+            <h3 class="collection-name">{{ collection.name }}</h3>
+            @if (collection.description) {
+              <p class="collection-desc">{{ collection.description }}</p>
+            }
+          </div>
+          <div class="card-footer">
+            <span class="artwork-count">
+              <mat-icon>image</mat-icon>
+              {{ collection.artworkCount || 0 }} obra{{ (collection.artworkCount || 0) !== 1 ? 's' : '' }}
+            </span>
+            <span class="created-date">
+              {{ collection.createdAt | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>
+
+<!-- Create Dialog -->
+@if (showCreateDialog()) {
+  <app-create-collection-dialog
+    (save)="onCollectionCreated($event)"
+    (cancel)="closeCreateDialog()"
+  ></app-create-collection-dialog>
+}

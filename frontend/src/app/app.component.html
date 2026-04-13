@@ -1,0 +1,23 @@
+<div class="app-container">
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a routerLink="/gallery" class="brand">
+        <span class="brand-icon">◈</span>
+        <span class="brand-name">Museu Aberto</span>
+      </a>
+      <div class="nav-links">
+        <a routerLink="/gallery" routerLinkActive="active" class="nav-link">
+          <mat-icon>grid_view</mat-icon>
+          <span>Galeria</span>
+        </a>
+        <a routerLink="/collections" routerLinkActive="active" class="nav-link">
+          <mat-icon>collections_bookmark</mat-icon>
+          <span>Coleções</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

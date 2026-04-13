@@ -1,0 +1,69 @@
+# ------------------------------
+# OS / Editor
+# ------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# ------------------------------
+# Logs / Temp
+# ------------------------------
+*.log
+logs/
+tmp/
+.temp/
+*.tmp
+*.bak
+
+# ------------------------------
+# Environment / Secrets
+# ------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------
+# Java / Maven
+# ------------------------------
+**/target/
+**/*.class
+
+# Packaged local artifacts
+*.jar
+*.war
+*.ear
+
+# ------------------------------
+# Local databases (H2)
+# ------------------------------
+data/*.mv.db
+data/*.trace.db
+backend/data/*.mv.db
+backend/data/*.trace.db
+
+# ------------------------------
+# Node / Angular
+# ------------------------------
+**/node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/coverage/
+**/.cache/
+**/.eslintcache/
+
+# Generated frontend copied to backend static
+backend/src/main/resources/static/
+
+# npm / yarn debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

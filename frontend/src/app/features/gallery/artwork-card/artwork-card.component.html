@@ -1,0 +1,102 @@
+<article class="artwork-card" [class]="'aspect-' + getAspectRatio()">
+  <a [routerLink]="['/artwork', artwork.id]" class="card-link">
+    <!-- Image Container -->
+    <div class="image-container">
+      <!-- LQIP Placeholder -->
+      @if (!imageLoaded()) {
+        <div class="image-placeholder">
+          @if (artwork.thumbnail?.lqip) {
+            <img [src]="artwork.thumbnail.lqip" alt="" class="lqip" />
+          } @else {
+            <div class="skeleton" style="width:100%;height:100%"></div>
+          }
+        </div>
+      }
+
+      <!-- Main Image -->
+      @if (!imageError()) {
+        <img
+          [src]="getDisplayImageUrl()"
+          [alt]="artwork.thumbnail?.altText || artwork.title"
+          class="artwork-image"
+          [class.loaded]="imageLoaded()"
+          (load)="onImageLoad()"
+          (error)="onImageError()"
+          loading="lazy"
+        />
+      } @else if (hasLqip()) {
+        <img
+          [src]="getLqipUrl()"
+          [alt]="artwork.thumbnail?.altText || artwork.title"
+          class="artwork-image loaded"
+        />
+      } @else {
+        <div class="image-error">
+          <mat-icon>broken_image</mat-icon>
+          <span>Imagem indisponível</span>
+        </div>
+      }
+
+      <!-- Color Accent -->
+      @if (artwork.color) {
+        <div class="color-accent" [style.background]="getColorStyle()"></div>
+      }
+
+      <!-- Overlay -->
+      <div class="card-overlay">
+        <div class="overlay-actions">
+          <!-- Add to Collection -->
+          <button
+            class="action-btn"
+            [matMenuTriggerFor]="collectionsMenu"
+            (click)="$event.preventDefault(); $event.stopPropagation()"
+            [matTooltip]="isInCollection() ? 'Em coleção' : 'Adicionar à coleção'"
+          >
+            <mat-icon>{{ isInCollection() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+          </button>
+
+          <!-- View Detail -->
+          <div class="action-btn view-btn" matTooltip="Ver detalhes">
+            <mat-icon>open_in_full</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Info -->
+    <div class="card-info">
+      <h3 class="artwork-title">{{ artwork.title }}</h3>
+      <p class="artwork-artist">{{ artwork.artistTitle || 'Artista desconhecido' }}</p>
+      @if (getShortDescription()) {
+        <p class="artwork-description">{{ getShortDescription() }}</p>
+      }
+      <div class="artwork-meta">
+        @if (artwork.dateDisplay) {
+          <span class="meta-item">{{ artwork.dateDisplay }}</span>
+        }
+        @if (artwork.artworkTypeTitle) {
+          <span class="meta-separator">·</span>
+          <span class="meta-item">{{ artwork.artworkTypeTitle }}</span>
+        }
+      </div>
+    </div>
+  </a>
+
+  <!-- Collections Menu -->
+  <mat-menu #collectionsMenu="matMenu">
+    @if ((collections$ | async)?.length === 0) {
+      <div class="menu-empty">
+        <mat-icon>collections_bookmark</mat-icon>
+        <span>Nenhuma coleção criada</span>
+        <a routerLink="/collections" class="menu-link">Criar coleção</a>
+      </div>
+    } @else {
+      @for (collection of (collections$ | async); track collection.id) {
+        <button mat-menu-item (click)="addToCollection(collection.id, $event)">
+          <mat-icon>{{ collection.artworkIds?.includes(artwork.id) ? 'check' : 'add' }}</mat-icon>
+          <span>{{ collection.name }}</span>
+        </button>
+      }
+    }
+  </mat-menu>
+</article>

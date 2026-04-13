@@ -1,0 +1,229 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Carregando obra...</p>
+  </div>
+} @else if (!artwork()) {
+  <div class="error-container page-container">
+    <div class="empty-state">
+      <mat-icon>broken_image</mat-icon>
+      <h3>Obra não encontrada</h3>
+      <p>Esta obra pode não estar mais disponível.</p>
+      <a routerLink="/gallery" class="btn-primary">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar à galeria
+      </a>
+    </div>
+  </div>
+} @else {
+  <div class="detail-page">
+    <!-- Back Navigation -->
+    <div class="back-nav page-container">
+      <a routerLink="/gallery" class="back-link">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Voltar à galeria</span>
+      </a>
+    </div>
+
+    <div class="detail-layout page-container">
+      <!-- Image Column -->
+      <div class="image-column">
+        <div class="image-wrapper" (click)="openZoom()">
+          @if (!imageLoaded()) {
+            <div class="image-skeleton">
+              @if (artwork()!.thumbnail?.lqip) {
+                <img [src]="artwork()!.thumbnail.lqip" alt="" class="lqip-bg" />
+              }
+              <div class="loading-overlay">
+                <mat-spinner diameter="32"></mat-spinner>
+              </div>
+            </div>
+          }
+          @if (!imageError()) {
+            <img
+              [src]="getDisplayImageUrl(artwork()!.imageUrl)"
+              [alt]="artwork()!.title"
+              class="main-image"
+              [class.loaded]="imageLoaded()"
+              (load)="imageLoaded.set(true)"
+              (error)="onMainImageError()"
+            />
+          } @else if (artwork()!.thumbnail?.lqip) {
+            <img
+              [src]="artwork()!.thumbnail.lqip"
+              [alt]="artwork()!.title"
+              class="main-image loaded"
+            />
+          } @else {
+            <div class="image-skeleton" style="display:flex;align-items:center;justify-content:center;min-height:320px;">
+              <mat-icon>broken_image</mat-icon>
+            </div>
+          }
+          <div class="zoom-hint">
+            <mat-icon>zoom_in</mat-icon>
+            <span>Clique para ampliar</span>
+          </div>
+          @if (artwork()!.color) {
+            <div class="color-bar" [style.background]="getColorStyle()"></div>
+          }
+        </div>
+
+        <!-- Image Actions -->
+        <div class="image-actions">
+          <button class="action-btn-outline" (click)="openZoom()">
+            <mat-icon>zoom_in</mat-icon>
+            Ver em alta resolução
+          </button>
+          @if (artwork()!.articulUrl) {
+            <a [href]="artwork()!.articulUrl" target="_blank" class="action-btn-ghost">
+              <mat-icon>open_in_new</mat-icon>
+              Ver no museu
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Info Column -->
+      <div class="info-column">
+        <!-- Header -->
+        <div class="artwork-header">
+          @if (artwork()!.artworkTypeTitle) {
+            <span class="badge badge-muted">{{ artwork()!.artworkTypeTitle }}</span>
+          }
+          <h1 class="artwork-title">{{ artwork()!.title }}</h1>
+          @if (artwork()!.artistDisplay || artwork()!.artistTitle) {
+            <p class="artwork-artist">{{ artwork()!.artistDisplay || artwork()!.artistTitle }}</p>
+          }
+        </div>
+
+        <!-- Add to Collection -->
+        <div class="collection-actions">
+          <button
+            class="btn-accent"
+            [matMenuTriggerFor]="collectionsMenu"
+          >
+            <mat-icon>{{ isInCollection() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+            {{ isInCollection() ? 'Em coleção' : 'Salvar em coleção' }}
+          </button>
+
+          <mat-menu #collectionsMenu="matMenu">
+            @if ((collections$ | async)?.length === 0) {
+              <div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.875rem;">
+                <p>Nenhuma coleção criada</p>
+                <a routerLink="/collections" style="color: var(--accent); font-size: 0.8rem;">Criar coleção</a>
+              </div>
+            } @else {
+              @for (collection of (collections$ | async); track collection.id) {
+                <button mat-menu-item (click)="addToCollection(collection.id)">
+                  <mat-icon>{{ collection.artworkIds?.includes(artwork()!.id) ? 'check' : 'add' }}</mat-icon>
+                  <span>{{ collection.name }}</span>
+                </button>
+              }
+            }
+          </mat-menu>
+        </div>
+
+        <!-- Metadata -->
+        <div class="metadata-grid">
+          @if (artwork()!.dateDisplay) {
+            <div class="meta-item">
+              <span class="meta-label">Período</span>
+              <span class="meta-value">{{ artwork()!.dateDisplay }}</span>
+            </div>
+          }
+          @if (artwork()!.placeOfOrigin) {
+            <div class="meta-item">
+              <span class="meta-label">Origem</span>
+              <span class="meta-value">{{ artwork()!.placeOfOrigin }}</span>
+            </div>
+          }
+          @if (artwork()!.mediumDisplay) {
+            <div class="meta-item">
+              <span class="meta-label">Técnica</span>
+              <span class="meta-value">{{ artwork()!.mediumDisplay }}</span>
+            </div>
+          }
+          @if (artwork()!.dimensions) {
+            <div class="meta-item">
+              <span class="meta-label">Dimensões</span>
+              <span class="meta-value">{{ artwork()!.dimensions }}</span>
+            </div>
+          }
+          @if (artwork()!.departmentTitle) {
+            <div class="meta-item">
+              <span class="meta-label">Departamento</span>
+              <span class="meta-value">{{ artwork()!.departmentTitle }}</span>
+            </div>
+          }
+          @if (artwork()!.styleTitle) {
+            <div class="meta-item">
+              <span class="meta-label">Estilo</span>
+              <span class="meta-value">{{ artwork()!.styleTitle }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Color Palette -->
+        @if (artwork()!.color) {
+          <div class="color-section">
+            <span class="section-label">Cor predominante</span>
+            <div class="color-display">
+              <div class="color-preview" [style.background]="getColorStyle()"></div>
+              <span class="color-info">
+                H: {{ artwork()!.color.h }}° · S: {{ artwork()!.color.s }}% · L: {{ artwork()!.color.l }}%
+              </span>
+            </div>
+          </div>
+        }
+
+        <!-- Description -->
+        @if (artwork()!.description) {
+          <div class="description-section">
+            <h3 class="section-title">Sobre a obra</h3>
+            <div class="description-text" [innerHTML]="artwork()!.description"></div>
+          </div>
+        }
+
+        <!-- Wikipedia Section -->
+        <div class="wikipedia-section">
+          <div class="wiki-header">
+            <div class="wiki-title-row">
+              <mat-icon class="wiki-icon">menu_book</mat-icon>
+              <h3 class="section-title">Wikipedia</h3>
+            </div>
+          </div>
+
+          @if (loadingWiki()) {
+            <div class="wiki-loading">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Buscando na Wikipedia...</span>
+            </div>
+          } @else if (wikipedia()?.found) {
+            <div class="wiki-content">
+              <h4 class="wiki-article-title">{{ wikipedia()!.title }}</h4>
+              <p class="wiki-extract">{{ wikipedia()!.extract }}</p>
+              <a [href]="wikipedia()!.pageUrl" target="_blank" class="wiki-link">
+                <mat-icon>open_in_new</mat-icon>
+                Ler artigo completo na Wikipedia
+              </a>
+            </div>
+          } @else {
+            <div class="wiki-not-found">
+              <p>Nenhum artigo encontrado na Wikipedia para esta obra.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Zoom Overlay -->
+  @if (showZoom()) {
+    <app-image-zoom
+      [imageUrl]="getDisplayImageUrl(artwork()!.imageUrl)"
+      [originalImageUrl]="getOriginalImageUrl(artwork()!.imageUrl)"
+      [title]="artwork()!.title"
+      (close)="closeZoom()"
+    ></app-image-zoom>
+  }
+}
